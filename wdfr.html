@@ -1,0 +1,184 @@
+<html lang="it">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="wdfr.css" />
+    <title>JSON to CSV e CSV to JSON</title>
+  </head>
+
+  <body class="mainTheme">
+    <div class="col-11 ml-5 d-flex justify-content-end">
+      <div>
+        <button
+          id="switch"
+          class="btn bg-transparent p-2 mr-3"
+          onClick="switchTheme()"
+        >
+          <img id="themeImg" src="media/sun.svg" />
+        </button>
+      </div>
+    </div>
+    <h1 class="alert-heading text-center mb-5">
+      Convertitore JSON in CSV e CSV in JSON
+    </h1>
+    <div class="col-12 d-flex flex-column align-items-center mt-5">
+      <article class="form-floating col-6 h-50">
+        <textarea
+          id="jsonTxt"
+          placeholder="Inserisci il JSON qui"
+          class="form-control h-25 bg-transparent border-info"
+        ></textarea>
+        <label for="jsonTxt">Inserisci il JSON qui</label>
+      </article>
+      <section class="mt-5 mb-5">
+        <button
+          class="btn bg-transparent border-primary"
+          onclick="convertToCSV()"
+        >
+          Converti in CSV
+        </button>
+        <button
+          class="btn bg-transparent border-primary"
+          onclick="convertToJSON()"
+        >
+          Converti in JSON
+        </button>
+        <button class="btn bg-transparent border-danger" onclick="reset()">
+          Pulisci
+        </button>
+      </section>
+
+      <div class="form-floating col-6">
+        <textarea
+          id="csvTxt"
+          placeholder="Il CSV risultante apparirà qui"
+          class="form-control h-25 bg-transparent border-info"
+        ></textarea>
+        <label for="csvTxt">Il CSV risultante apparirà qui</label>
+      </div>
+    </div>
+
+    <a id="download" href="#" style="display: none"></a>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script>
+      function convertToCSV() {
+        let jsonTxt = document.getElementById("jsonTxt").value;
+        if (jsonTxt === "") {
+          const jsonTxt = document.getElementById("jsonTxt");
+          jsonTxt.classList.toggle("is-invalid");
+          return;
+        } else {
+          jsonText.classList.remove("is-invalid");
+        }
+        try {
+          let data = JSON.parse(jsonTxt);
+
+          if (Array.isArray(data)) {
+            let campi = Object.keys(data[0]);
+            let res = campi.join(";") + "\n"; //TESTATA
+
+            data.forEach((item) => {
+              //CORPO
+              let riga = campi
+                .map((campo) => {
+                  let valore = item[campo];
+                  if (typeof valore === "object" && valore !== null) {
+                    return JSON.stringify(valore); // Converte l'oggetto in una stringa JSON
+                  }
+                  return valore || "";
+                })
+                .join(";");
+              res += riga + "\n";
+            });
+            document.getElementById("csvTxt").value = res;
+
+            //QUACK
+            let download = document.getElementById("download");
+            download.href =
+              "data:text/csv;charset=utf-8," + encodeURIComponent(res);
+            download.download = "data.csv";
+            download.innerHTML = "Scarica CSV";
+            download.style.display = "inline-block";
+          } else {
+            alert("Il JSON inserito non contiene un array di oggetti!");
+          }
+        } catch (error) {
+          alert("Errore nel parsing del JSON: " + error.message);
+        }
+      }
+
+      function convertToJSON() {
+        let csvTxt = document.getElementById("csvTxt").value;
+        try {
+          let righe = csvTxt.split("\n");
+          let testata = righe[0].split(";");
+          let res = [];
+
+          for (let i = 1; i < righe.length; i++) {
+            let riga = righe[i].split(";");
+            if (riga.length === testata.length) {
+              let obj = {};
+              for (let j = 0; j < testata.length; j++) {
+                let valore = riga[j];
+                try {
+                  obj[testata[j]] = JSON.parse(valore);
+                } catch (e) {
+                  obj[testata[j]] = valore;
+                }
+              }
+              res.push(obj);
+            }
+          }
+
+          let jsonString = JSON.stringify(res, null, 2);
+          document.getElementById("jsonTxt").value = jsonString;
+
+          let download = document.getElementById("download");
+          const encodedJson = encodeURIComponent(jsonString);
+          download.href = "data:text/json;charset=utf-8," + encodedJson;
+          download.download = "data.json";
+          download.innerHTML = "Scarica JSON";
+          download.style.display = "inline-block";
+        } catch (error) {
+          alert("Errore nel parsing del CSV: " + error.message);
+        }
+      }
+
+      function reset() {
+        document.getElementById("csvTxt").value = "";
+        document.getElementById("jsonTxt").value = "";
+      }
+
+      function switchTheme(e) {
+        const btnSwitch = document.getElementById("switch");
+        const img = document.getElementById("themeImg");
+        const body = document.querySelector("body");
+        const title = document.querySelector("h1");
+        const textarea = document.querySelectorAll("textarea");
+        const btn = document.querySelectorAll("button");
+        const label = document.querySelectorAll("label");
+        if (body.classList.contains("darkTheme")) {
+          img.src = "media/sun.svg";
+          img.alt = "light theme";
+        } else {
+          img.src =
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFeElEQVR4nN2Y2U8bdxDH3eOhqqr+AT2kvrR96PXSP6HqU/LQh772qZGqVlVLwNca122l0oC96zXQw4HY3vVv18ZgB5eQA0ioU0M4CsYXBWJAIYpShTTEZwhJM9U4YJvamF1DiJSRRpYteX8fzXznNzOrUDyp1qy0vd7SwB1hdYLfoncvmLXkH5OK3zCquPu02pllKWGZbRTOmFTcUVrNv3cgUAaD/TmT0vkpS4mL7d95s+Kvwbs+EoYeEgMPHwOXLQKiLQJdjmj+N58QBXfn6Ebb976sWUtWTCq+od3geWHfwUABT9Eq7gitEZLkp8AdnxgD0RYG4YR09wlxIL9cXKc1zrRRSeoNhuFn9wXumMr5CqtzTZ4wnc16hZgsKKGCd5MY2M1DOYYi881K55t7BqTrHC+zlOuuh4vBWf8iXBq+BqGxGxCfvgXz0SRcjiZhLnwbIhOrMH7xOgz1L4FPnN0V1OuceWDWihljPX94T4Cmo7ZX2UYxk4inQI5HJlZh6NQyuOyRnSGFOFj07hyt5j+RBdWs5N7H1CIcoxUCJx2j63IBE5v+18waDPQtVU05QjYruUMS4TpforVkzUwJWYwcwi1Eb5cd/Me5BbA29QKtIfnP4NmFqqDTYzfylV0xkiQOmG7TUe6NqnCejz3PmLVk/JRr8l61wxCO1bvB3hYE0hECW2sw/303SNRqX/dCZUg+9IDRkrmq1W1U8nXWpt4MCr/aQdYfevNwQskBtrYgWJv8u6Z8IZqE077LFSHt7GCOUfN1FeEsXzpfZDTO1HTw6q6HMFoBSGdo28NJx3T+dym6RMjfuufLAHuccWC0zlTFy5xWcV/b6f6UlAMwgphWoYYIlqa7h8TLIMnPgXXsOGWA2IpGBxOSHr6lQRtqsPOhBi2NbgieuyyrwrFwyq+eGJgp4cr26Klt77CUmE3EpD8cC8La5N+sYr9suC0frHAFYZ831vNvlxQHVy+0DaZrOSCxR8d70mWPbgN0d4xsoOQKgKxOOH3eHztwuMSmY8fZPlhEwKIT+wuADCUsT15ceWyA4YmbZTpkda7FEg06M+Hxvx8bYCKeAm/JgNHFRQHHsqIGVdz9ucjaYwUc7C+mWbRHwKTi75UWyf1K/XarWi16N7Tq3TBSY6UmJPhY4Pp2QGUJIKMhmdnpmxX/iGD29tG8t37TdSA67HqY4lRJFYvLUzsUSQGw7dECzs2s/a9IxGKR4PY13Ddb8Y+YVoREuJGBR5fihWiyAHhSiALbKPYWAHE17D4euPOoDk9I0DTWQEGDx0c2TErHVwXAlgbHuxa9Oy2n1dU6uLbuoOnZ0K2HcLYwtH3bk8W9e/uwQJGV8eFl2XCszMF1J02Hx1c3u0h+WCjqr5hmvkFoH5S1HFlrGFx30jRuix77xIZZ51o3qfkvygBxSKTVznRo9JpkQGaPg2upe20j6wwlXMA1twyueGGTepuxT/JUY92HwXXLzVqSw01SUc1wYcGNf8A78+9BDq4JBKSEXNXobRm+jsDOMhG4cmCD69iFZaC1JPmj2v7aroD5VNfzh82UmJWjx0SNPhW8mk9vSwP3gUKO4esIXN4nf5cWyUQNjpFjtCRLq50fyYIrpps7hOke8IYkaTIh1WMpON01dY/RCsmWBseHir0Yvo7Ajf9ES186NLL3lP8ZWIGOY/40Q5GoZM3tZvnqVvN1uNgLrQOZfMeR0xZjKbg0tAic+Uya1pCkUcl9ZjAYnlbst+Fljh0H91aL3pX2HB/ODffF81HBeRIb/nxkDeJTq4A7znl/FNzWCzlcafGdtVHJfW4wWJ9XHIQdUznewtXQonP1s5S4RGtIBidznIQxSmZKWGJ14kmj0lFX1vifJPsPiEtEPPhKi5wAAAAASUVORK5CYII=";
+          img.alt = "dark theme";
+        }
+        title.classList.toggle("titleColor");
+        textarea.forEach((el) => el.classList.toggle("titleColor"));
+        btn.forEach((el) => el.classList.toggle("titleColor"));
+        label.forEach((el) => el.classList.toggle("titleColor"));
+        body.classList.toggle("darkTheme");
+      }
+    </script>
+  </body>
+</html>

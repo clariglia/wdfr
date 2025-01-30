@@ -1,0 +1,39 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.mainTheme{
+    background-color:rgb(211, 220, 219);
+}
+.darkTheme{
+    background-color:rgb(40, 47, 52);
+}
+
+.titleColor{
+    /* color:rgb(40, 47, 52); */
+    color:rgb(211, 220, 219);
+}
+
+h1{
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 30px;
+}
+
+
+textarea{
+    font-family:'Courier New', Courier, monospace;
+    font-size: 18px;
+    height: 300px !important;
+}
+
+label{
+    font-family:'Courier New', Courier, monospace;
+    font-size: 18px;
+}
+.form-floating>label{
+    background-color: transparent !important;
+}
+.form-floating>label:active{
+    background-color: transparent !important;
+}
