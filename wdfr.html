@@ -28,13 +28,12 @@
       Convertitore JSON in CSV e CSV in JSON
     </h1>
     <div class="col-12 d-flex flex-column align-items-center mt-5">
-      <article class="form-floating col-6 h-50">
+      <article class="col-6 h-100">
+        <label for="jsonTxt">Inserisci il JSON o CSV qui</label>
         <textarea
           id="jsonTxt"
-          placeholder="Inserisci il JSON qui"
-          class="form-control h-25 bg-transparent border-info"
+          class="form-control bg-transparent border-info"
         ></textarea>
-        <label for="jsonTxt">Inserisci il JSON qui</label>
       </article>
       <section class="mt-5 mb-5">
         <button
@@ -54,30 +53,36 @@
         </button>
       </section>
 
-      <div class="form-floating col-6">
+
+      <article class="col-6 d-none h-100 mb-5" id="resultBlock">
+        <div class="d-flex justify-content-between">
+          <label for="csvTxt">Il CSV o JSON risultante apparirà qui</label>
+          <a class="btn bg-transparent" id="download" href="#" style="display: none"></a>
+        </div>
         <textarea
           id="csvTxt"
-          placeholder="Il CSV risultante apparirà qui"
-          class="form-control h-25 bg-transparent border-info"
+          placeholder="Il CSV o JSON risultante apparirà qui"
+          class="form-control bg-transparent border-info"
         ></textarea>
-        <label for="csvTxt">Il CSV risultante apparirà qui</label>
-      </div>
+      </article>
     </div>
 
-    <a id="download" href="#" style="display: none"></a>
+
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script>
+
       function convertToCSV() {
         let jsonTxt = document.getElementById("jsonTxt").value;
+        /*        
         if (jsonTxt === "") {
           const jsonTxt = document.getElementById("jsonTxt");
           jsonTxt.classList.toggle("is-invalid");
           return;
         } else {
           jsonText.classList.remove("is-invalid");
-        }
+        } */
         try {
           let data = JSON.parse(jsonTxt);
 
@@ -98,6 +103,8 @@
                 .join(";");
               res += riga + "\n";
             });
+            // result block
+            document.getElementById("resultBlock").classList.remove("d-none");
             document.getElementById("csvTxt").value = res;
 
             //QUACK
@@ -116,7 +123,8 @@
       }
 
       function convertToJSON() {
-        let csvTxt = document.getElementById("csvTxt").value;
+/*         let csvTxt = document.getElementById("csvTxt").value; */
+        let csvTxt = document.getElementById("jsonTxt").value;
         try {
           let righe = csvTxt.split("\n");
           let testata = righe[0].split(";");
@@ -139,7 +147,10 @@
           }
 
           let jsonString = JSON.stringify(res, null, 2);
-          document.getElementById("jsonTxt").value = jsonString;
+          // result block
+          document.getElementById("resultBlock").classList.remove("d-none");
+          document.getElementById("csvTxt").value = res;
+          document.getElementById("csvTxt").value = jsonString;
 
           let download = document.getElementById("download");
           const encodedJson = encodeURIComponent(jsonString);
@@ -155,6 +166,7 @@
       function reset() {
         document.getElementById("csvTxt").value = "";
         document.getElementById("jsonTxt").value = "";
+        document.getElementById("resultBlock").classList.add("d-none");
       }
 
       function switchTheme(e) {
@@ -162,7 +174,7 @@
         const img = document.getElementById("themeImg");
         const body = document.querySelector("body");
         const title = document.querySelector("h1");
-        const textarea = document.querySelectorAll("textarea");
+        const textarea = document.querySelectorAll("textarea").forEach((el) => el.classList.toggle("titleColor"));
         const btn = document.querySelectorAll("button");
         const label = document.querySelectorAll("label");
         if (body.classList.contains("darkTheme")) {
@@ -174,7 +186,7 @@
           img.alt = "dark theme";
         }
         title.classList.toggle("titleColor");
-        textarea.forEach((el) => el.classList.toggle("titleColor"));
+
         btn.forEach((el) => el.classList.toggle("titleColor"));
         label.forEach((el) => el.classList.toggle("titleColor"));
         body.classList.toggle("darkTheme");
